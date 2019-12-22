@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Applicant Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#notify").click(function(){
+                top.location.href = "applicant_notify";
+            });
+            $("#profile").click(function () {
+                top.location.href = "profile";
+            });
+            $("#signin").click(function () {
+                top.location.href = "sign_in";
+            });
+            $("#pcv").hide();
+            var cv;
+            var valid1 = false;
+            var valid2 = false;
+            $(".upload").click(function () {
+                valid1 = true;
+            });
+            $(".mycv").click(function () {
+                valid2 = true;
+            });
+            $(".applybtn").click(function (e) {
+                if (valid1) {
+                    cv = $(".upload").val();
+                } else if (valid2) {
+                    cv = $("#cv").html();
+                } else {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    document.getElementById("pcv").innerHTML = "You have to choose way to upload your cv!";
+                    $("#pcv").show();
+                }
+                if (valid1 | valid2) {
+                    var trow = $(this).closest('li');
+                    var id = trow.find('.pid').html();
+                    var pname = trow.find('.pname').html();
+                    var record = { email: $("#email").html(), id: id, cv: cv , pname: pname};
+                    $.ajax({
+                        type: 'POST',
+                        url: '/applicant_home',
+                        data: record,
+                        success: function (data) {
+                            alert("Applied Sucessfully! ");
+                            top.location.href = "applicant_notify";
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <%- include ('nav.ejs'); %>
+    <button id="signin">Go to Sign In Page</button>
+    <button id="profile">Go to Profile Page</button>
+    <button id="notify">Go to Notify Page</button>
+    <h2 style="display:none;" id="email"><%=sess.email%></h2>
+    <h2 style="display:none;" id="cv"><%=sess.cv%></h2>
+    <h1>Postion Avaliable: </h1>
+    OR<input type="file" class="upload" value="Upload CV?" />
+    <label><input type="checkbox" class="mycv" />My profile CV.</label>
+    <form id="applyform" name="applyform">
+        <ul><br><br>
+        <p id="pcv"></p><br><br><br><br>
+            <% for(var i=0; i<postion.length; i++){ %>
+            <li>
+                <h2 style="display:none;" class="pid"><%=postion[i].postionid%></h2>
+                <label>Job Title: </label><label class="pname"><%= postion[i].postionname %></label>
+                <br><br><br>
+                <label>Job Detail:</label><label><%= postion[i].postiondetail %></label>
+                <br><br>
+                <h2 style="display:none;" class="pid"><%=postion[i].postionid%></h2>
+                <button class="applybtn">Apply!</button>
+                <br><br><br>
+            </li>
+            <% } %>
+        </ul>
+    </form>
+</body>
+
+</html>

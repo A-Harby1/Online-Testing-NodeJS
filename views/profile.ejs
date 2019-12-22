@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function validate() {
+            if (document.updateInfo.fname.value == "" || document.updateInfo.fname.value.length >= 50) {
+                document.getElementById("pfname").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#pfname").show();
+                return false;
+            } else {
+                $("#pfname").hide();
+            }
+            if (document.updateInfo.lname.value == "" || document.updateInfo.lname.value.length >= 50) {
+                document.getElementById("plname").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#plname").show();
+                return false;
+            } else {
+                $("#plname").hide();
+            }
+            if (document.updateInfo.tel.value == "") {
+                $("#ptel").hide();
+            } else if (!(document.updateInfo.tel.value.length == 11) || !document.updateInfo.tel.value.match("^[0-9]+$")) {
+                if (!(document.updateInfo.tel.value.length == 11)) {
+                    document.getElementById("ptel").innerHTML = "Your input can't be more or less than 11 Number try again please!";
+                } if (!document.updateInfo.tel.value.match("^[0-9]+$")) {
+                    document.getElementById("ptel").innerHTML = "Your input Must be Numbers only try again please!";
+                }
+                $("#ptel").show();
+                return false;
+            } else {
+                $("#ptel").hide();
+            }
+            if (document.updateInfo.pass.value == "" || document.updateInfo.pass.value.length >= 50) {
+                document.getElementById("ppass").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#ppass").show();
+                return false;
+            } else {
+                $("#ppass").hide();
+            }
+            if (document.getElementById("cv").innerHTML == "") {
+                document.getElementById("pcv").innerHTML = "You have to upload a CV!";
+                $("#pcv").show();
+                return false;
+            } else {
+                $("#pcv").hide();
+            }
+            return (true);
+        }
+        $(document).ready(function () {
+            var cv;
+            var isValid = false;
+            var isValid2 = false;
+            $("#home").click(function () {
+                top.location.href = "applicant_home";
+            });
+            $("#upload").click(function () {
+                document.getElementById("cv").innerHTML = $("#upload").val();
+                isValid2 = true;
+            });
+            $("#pfname").hide();
+            $("#plname").hide();
+            $("#ptel").hide();
+            $("#ppass").hide();
+            $("#pcv").hide();
+            $("#update").click(function (e) {
+                if (isValid2) {
+                    document.getElementById("cv").innerHTML = $("#upload").val();
+                }
+                isValid = validate();
+                if (!isValid) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else {
+                    var firstname = $('#fname');
+                    var lastname = $('#lname');
+                    var tel = $('#tel');
+                    var password = $('#pass');
+                    if (isValid2) {
+                        cv = $('#upload').val();
+                    } else {
+                        cv = '<%= data.cv %>';
+                    }
+                    var acc = {
+                        firstname: firstname.val(), lastname: lastname.val(), tel: tel.val(),
+                        password: password.val(), cv: cv
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/profile',
+                        data: acc,
+                        success: function (data) {
+                            alert("Information Updated");
+                            location.reload();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <%- include ('nav.ejs'); %>
+    <button id="home">Go to Home Page</button>
+    <h1>Update Your Profile</h1>
+    <form name="updateInfo" id="updateInfo" onsubmit="return(validate());">
+        <label>First Name: </label>
+        <input type="text" name="fname" id="fname" value=<%= data.firstname %>>
+        <p id="pfname"></p>
+        <br>
+        <label>Last Name: </label>
+        <input type="text" name="lname" id="lname" value=<%= data.lastname %>>
+        <p id="plname"></p>
+        <br>
+        <label>Telephone Number: </label>
+        <input type="tel" name="tel" id="tel" value=<%= data.telephone %>>
+        <p id="ptel"></p>
+        <br>
+        <label>Password: </label>
+        <input type="password" name="pass" id="pass" value=<%= data.password %>>
+        <p id="ppass"></p>
+        <br>
+        <label>CV: </label><label id="cv"><%= data.cv %></label>
+        <br><br><br><br>
+        <label>Upload other cv</label><input type="file" name="upload" id="upload">
+        <p id="pcv"></p>
+        <br><br>
+        <button type="submit" id="update">Update</button>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <title>HR Notify Page</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+            <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+                integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $("#home").click(function () {
+                        top.location.href = "hr_home";
+                    });
+                });
+            </script>
+    </head>
+    <body>
+        <%- include ('nav.ejs'); %>
+        <button id="home">Go to Home Page</button>
+        <h1>candidates exams </h1>
+        <form id="candidates" name="candidates">
+             <%
+                    var count =0;
+                    var candidates2 = new Array(1);
+                    var Scores= new Array(1);
+                    var examids = new Array(1);
+                    var examtypes = new Array(1);
+                    var examtype;
+                    var examid1=-1;
+                    var examid2=-1;
+
+                    for(var  i=0;i<candidates.length;++i)
+                        {
+                            if (i==0)
+                            {
+                                candidates2[count]= candidates[i].email;
+                                ++count;
+                            }
+                            else if(candidates2.indexOf( candidates[i].email) == -1)
+                                {
+                                candidates2[count]= candidates[i].email;
+                                ++count;
+                            }
+                        }
+
+                    count=0;
+                    for(var i=0;i<exam.length;++i)
+                    {
+                        if(i==0)
+                        {
+                            examids[count]=exam[i].examid;
+                            examtypes[count]=exam[i].examtype;
+                            ++count;
+                        }
+                        else if(examids.indexOf(exam[i].examid) == -1)
+                        {
+                            examids[count]=exam[i].examid;
+                            examtypes[count]=exam[i].examtype;
+                            ++count;
+                        }
+                    }
+                    
+                    count = 0;
+                    for(var i=0;i<candidates2.length;++i)
+                    {
+                        if(candidates.length == 0)
+                        {
+                            break;
+                        }
+                        var exam_count=0;
+                        var correct_Count=0;
+                        var grade_count = 0;
+                    
+                    %>  <li>
+                        <label style="color: red;">Candidate Email :</label> <label style="color: red;"> <%= candidates2[i] %> </label style="color: red;"> <label>&nbsp;</label>
+
+                    <%
+                        for(var j=0;j<candidates.length;++j)
+                        {
+                            if(candidates2[i]==candidates[j].email)
+                            {
+                                examid1=candidates[j].examid;
+                                if(examid2 != examid1)
+                                {
+                                     ++exam_count;
+                                    examid2=examid1;
+                                    examtype = examtypes[examids.indexOf(examid2)] ;
+                                    if(grade_count !=0)
+                                    {
+                                        %>
+                                        <label>Grade : <%= grade_count + "/" + 5  %></label><label>&nbsp;</label><label>&nbsp;</label>
+                                        <%
+                                        grade_count = 0;
+                                        
+                                    }
+                                    %>
+                                    <label>Exam Type :</label> <label><%= examtype  %> </label> <label>&nbsp;</label>
+                                    <%
+                                }
+                                
+                                %>
+                                    <label>Queston : <%= candidates[j].question %> </label>
+                                    <label>Answer : <%= candidates[j].answer %></label>
+                                <%
+                                
+                                if(candidates[j].correct == 'yes' || candidates[j].correct == 'Yes')
+                                {
+                                        ++correct_Count;
+                                        ++grade_count;
+                                        %>
+                                            <label>Correct</label>
+                                        <%
+                                }
+                                else
+                                {
+                                    %>
+                                    <label>Incorrect</label>
+                                    <%
+                        
+                                }
+                            }
+                            if(j == (candidates.length-1) )
+                            {
+                                Scores[count] = (correct_Count/(exam_count*5))*100;
+                                ++count;
+                                examid2 = 0;
+                                %>
+                                    <label>Grade :</label> <label><%= grade_count + "/" + 5  %> </label> <label>&nbsp;</label>
+                                <%
+                                correct_Count = 0;
+                                exam_count = 0;
+                                grade_count = 0;
+                            }
+                        }
+                    }
+                %>
+                </li>
+
+                    
+                    <%
+                    
+                    if(candidates.length != 0)
+                    {
+                         %>
+                         <h1>Total Scores </h1>
+                         <%
+                    }
+                       for(var i = 0 ; i < candidates2.length ; ++i)
+                       {
+                           
+                           %>
+                           <label> <%= candidates2[i]%></label><label>:</label> <label><%= +Scores[i] +" %"%></label>:</label>>
+                           <%
+                       }
+                    %>
+                </li>
+
+
+            </ul>
+        </form>
+    </body>
+</html>

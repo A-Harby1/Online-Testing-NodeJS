@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Questions</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#home").click(function () {
+                top.location.href = "hr_home";
+            });
+            $("#add").click(function (e) {
+                if ($('#typeval1').val() == "" || $('#upquestion').val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error1').show();
+                } else {
+                    var exam = $('#typeval1').val();
+                    var examdata = exam.split("-");
+                    var id = examdata[0];
+                    var examtype = examdata[1];
+                    var upquestion = $('#upquestion');
+                    var addanswer = "false";
+                    var data = {
+                        addanswer: addanswer, question: upquestion.val(), examtype: examtype, examid: id
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/questions',
+                        data: data,
+                        success: function (data) { }
+                    });
+                }
+            });
+            $("#delete").click(function (e) {
+                if ($('#upid').val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error2').show();
+                } else {
+                    var qid = $('#upid');
+                    var delanswer = "false";
+                    var data = {
+                        qid: qid.val(), delanswer: delanswer
+                    };
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '/questions',
+                        data: data,
+                    });
+                }
+            });
+            $("#deleteans").click(function (e) {
+                if($('#delanswer').val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error5').show();
+                } else {
+                var answerid = $('#delanswer');
+                var delanswer = "true";
+                var data = {
+                    aid: answerid.val(), delanswer: delanswer
+                };
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/questions',
+                    data: data,
+                });
+            }
+            });
+            $("#update").click(function (e) {
+                if ($('#upqis').val() == "" || $('#upid').val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error2').show();
+                    $('#error3').show();
+                } else {
+                    var upquestion = $('#upqis');
+                    var upid = $('#upid');
+                    var data = {
+                        question: upquestion.val(), qid: upid.val()
+                    };
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/questions',
+                        data: data,
+                        success: function (data) { }
+                    });
+                }
+            });
+            $("#addans").click(function (e) {
+                if ($('#upqidans').val() == "" || $('#upanswer').val() == "" || $('#correct').val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error4').show();
+                } else {
+                    var upanswer = $('#upanswer');
+                    var upqidans = $('#upqidans');
+                    var correct = $('#correct');
+                    var addanswer = "true";
+                    var data = {
+                        addanswer: addanswer, answer: upanswer.val(), correct: correct.val(), qid: upqidans.val()
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/questions',
+                        data: data,
+                        success: function (data) { }
+                    });
+                }
+            });
+            $("#addans").click(function (e) {
+                if ($('#delanswer').val() == "" || $('#upanswer').val() == "" || $('#correct').val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error6').show();
+                } else {
+                    var upanswer = $('#upanswer');
+                    var delanswer = $('#delanswer');
+                    var correct = $('#correct');
+                    var updanswer = "true";
+                    var data = {
+                        updanswer: updanswer, answer: upanswer.val(), correct: correct.val(), aid: delanswer.val()
+                    };
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/questions',
+                        data: data,
+                        success: function (data) { }
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <button id="home">Go to Home Page</button>
+    <h1>Add Questions</h1>
+    <form name="examtypes" id="examtypes">
+        <input list="type1" id="typeval1" placeholder="Choose Exam Type">
+        <datalist id="type1" name="type1">
+            <% for(var i=0; i<exam.length; i++){ %>
+            <h2 style="display:none;" class="eid1" id="id1"><%= exam[i].examid %></h2>
+            <option><%= exam[i].examid %> - <%= exam[i].examtype %> </option>
+            <% } %>
+        </datalist>
+    </form>
+    <form name="updateQuestions" id="updateQuestions">
+        <label>Add Question :</label>
+        <input type="text" id="upquestion" />
+        <p style="display:none;" id="error1">Can't leave Exam Type or Question empty!</p>
+        <button type="submit" id="add">Add</button>
+        <br><br>
+        <label align="center">Questions</label>
+        <table border=1 style="width:79% ;color:white">
+            <tr>
+                <th>ID </th>
+                <th>َQuestion</th>
+                <th>Exam Type </th>
+            </tr>
+            <% for (var i = 0 ; i<questions.length ; i++)
+                {
+            %>
+            <tr>
+                <td align="center"> <%= questions[i].qid %> </td>
+                <td align="center"> <%= questions[i].question %> </td>
+                <td align="center"> <%= questions[i].examtype %> </td>
+
+            </tr>
+            <% }%>
+        </table>
+        <label>Question ID :</label>
+        <input type="text" id="upid" />
+        <p style="display:none;" id="error2">Can't leave Question ID empty!</p>
+        <label>Question Update :</label>
+        <input type="text" id="upqis" />
+        <p style="display:none;" id="error3">Can't leave Question empty!</p>
+        <button type="submit" id="delete">Delete</button>
+        <button type="submit" id="update">Update</button>
+        <br>
+    </form>
+    <h1>Add Answers</h1>
+    <form name="updateAnswers" id="updateAnswers">
+
+        <table border=1 style="width:79%;color:white">
+            <tr>
+                <th>Answer ID </th>
+                <th>Answer</th>
+                <th>Correctness </th>
+                <th>Question ID </th>
+            </tr>
+            <% for (var i = 0 ; i<answers.length ; i++)
+                {
+            %>
+            <tr>
+                <td align="center"> <%= answers[i].aid %> </td>
+                <td align="center"> <%= answers[i].answer %> </td>
+                <td align="center"> <%= answers[i].correct %> </td>
+                <td align="center"> <%= answers[i].qid %> </td>
+            </tr>
+            <% }%>
+        </table>
+        <label>Question ID :</label>
+        <input list="idlist" placeholder="Choose ID" id="upqidans">
+        <datalist id="idlist" name="correct">
+            <% for (var i = 0 ; i<questions.length ; i++) { %>
+            <option><%= questions[i].qid %></option>
+            <% } %>
+        </datalist>
+        <label>Answer :</label>
+        <input type="text" id="upanswer" />
+        <input list="correctlist" placeholder="Choose Correctness" id="correct">
+        <datalist id="correctlist" name="correct">
+            <option>Yes</option>
+            <option>No</option>
+        </datalist>
+        <p style="display:none;" id="error4">Can't leave Question ID Or Answer Or Correctness empty!</p>
+        <button type="submit" id="addans">Add</button>
+        <label>Answer ID :</label>
+        <input list="aidlist" placeholder="Choose ID" id="delanswer">
+        <datalist id="aidlist" name="correct">
+            <% for (var i = 0 ; i<answers.length ; i++) { %>
+            <option><%= answers[i].aid %></option>
+            <% } %>
+        </datalist>
+        <p style="display:none;" id="error5">Can't leave Answer ID empty!</p>
+        <p style="display:none;" id="error6">Can't leave Answer ID Or Answer Or Correctness empty!</p>
+        <button type="submit" id="deleteans">delete</button>
+        <button type="submit" id="updans">delete</button>
+    </form>
+
+</body>
+
+</html>

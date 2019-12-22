@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Exam, Questions Manipulation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#home").click(function () {
+                top.location.href = "hr_home";
+            });
+            $("#update").click(function (e) {
+                if ($("#upid").val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error2').show();
+                } else if ($("#upexamtype").val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error1').show();
+                } else {
+                    var upid = $('#upid');
+                    var upexamtype = $('#upexamtype');
+                    var data = {
+                        id: upid.val(), examtype: upexamtype.val()
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/hr_features',
+                        data: data,
+                        success: function (data) { }
+                    });
+                }
+            });
+            $("#add").click(function (e) {
+                if ($("#upexamtype").val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error1').show();
+                } else {
+                    var upid = $('#upid');
+                    var upexamtype = $('#upexamtype');
+                    var data = {
+                        examtype: upexamtype.val()
+                    };
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/hr_features',
+                        data: data,
+                        success: function (data) { }
+                    });
+                }
+            });
+            $("#delete").click(function (e) {
+                if ($("#upid").val() == "") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('#error2').show();
+                } else {
+                    var upid = $('#upid');
+                    var data = {
+                        id: upid.val()
+                    };
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '/hr_features',
+                        data: data,
+                        success: function (data) {
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+
+</head>
+
+<body>
+    <button id="home">Go to Home Page</button>
+    <h1>Exam Types</h1>
+    <form name="examtypes" id="examtypes">
+        <ul>
+            <li>
+                <label>
+                    <th>ID </th>
+                </label>
+                <label>
+                    <th>Exam Type</th>
+                </label>
+            </li><br><br><br>
+            <% for (var i = 0 ; i<data.length ; i++)
+                {
+            %>
+            <li>
+                <!-- <input value="<%= data[i].examid %>">  </input>
+                <input value="<%= data[i].examtype %>">  </input>-->
+                <label>
+                    <td align="center"> <%= data[i].examid %> </td>
+                </label>
+                <label>
+                    <td align="center"> <%= data[i].examtype %> </td>
+                </label>
+            </li><br><br>
+            <% }%>
+        </ul><br>
+        <form name="updateExam" id="updateExam">
+            <label>ID</label>
+            <input list="idlist" placeholder="Choose ID" id="upid">
+            <datalist id="idlist" name="correct">
+                <% for (var i = 0 ; i<data.length ; i++) { %>
+                    <option><%= data[i].examid %></option>
+                <% } %>
+            </datalist>
+            <p style="display:none;" id="error2">Can't leave ID text empty!</p>
+            <label>Exam Type</label>
+            <input type="text" id="upexamtype" />
+            <p style="display:none;" id="error1">Can't leave Question text empty!</p>
+            <button type="submit" id="add">Add</button>
+            <button type="submit" id="update">Update</button>
+            <button type="submit" id="delete">Delete</button>
+        </form>
+    </form>
+</body>
+
+</html>

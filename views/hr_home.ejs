@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HR Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function find_eid(str, examtype) {
+            str = str.replace(/(\n|\s)/g, "");
+            examtype = examtype.replace(/(\n|\s)/g, "");
+            var n = str.search(examtype);
+            str = str[n - 1];
+            return str;
+        }
+        $(document).ready(function () {
+            $("#signin").click(function () {
+                top.location.href = "sign_in";
+            });
+            $("#exampage").click(function () {
+                top.location.href = "hr_features";
+            });
+            $("#questionpage").click(function () {
+                top.location.href = "questions";
+            });
+            $("#notify").click(function () {
+                top.location.href = "hr_notify";
+            });
+            $("#exam").hide();
+            $(".acceptbtn").click(function (e) {
+                var trow = $(this).closest('li');
+                var pid = trow.find('.pid').html();
+                var email = trow.find('.email').html();
+                var name = trow.find('.name').html();
+                var cv = trow.find('.cv').html();
+                e.preventDefault();
+                e.stopPropagation();
+                $("#applied").hide();
+                $("#valid").hide();
+                $("#exam").show();
+                $("#exambtn").click(function (e) {
+                    var recordds = { email: email, cv: cv, id: pid };
+                    var val1 = $("#typeval1").val();
+                    var val2 = $("#typeval2").val();
+                    var val3 = $("#typeval3").val();
+                    if (!(val1 != "") || !(val2 != "") || !(val3 != "")) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $("#valid").show();
+                    } else {
+                        $("#valid").hide();
+                        var radios = document.forms.examform.sequence.value;
+                        var seq = (radios == "seq" ? 1 : 0);
+                        
+                        var examtype1 = $("#typeval1").val();
+                        var str1 = $('#type1').text();
+                        var eid1 = find_eid(str1, examtype1);
+                        var deadline1 = $("#date1").val();
+
+                        var examtype2 = $("#typeval2").val();
+                        var str2 = $('#type2').text();
+                        var eid2 = find_eid(str2, examtype2);
+                        var deadline2 = $("#date2").val();
+
+                        var examtype3 = $("#typeval3").val();
+                        var str3 = $('#type3').text();
+                        var eid3 = find_eid(str3, examtype3);
+                        var deadline3 = $("#date3").val();
+
+                        var record1 = { email: email, name: name, pid: pid, examtype: examtype1, deadline: deadline1, eid: eid1, seq: (seq * 1) };
+                        var record2 = { email: email, name: name, pid: pid, examtype: examtype2, deadline: deadline2, eid: eid2, seq: (seq * 2) };
+                        var record3 = { email: email, name: name, pid: pid, examtype: examtype3, deadline: deadline3, eid: eid3, seq: (seq * 3) };
+                        var records = { record1: record1, record2: record2, record3: record3 };
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/hr_home',
+                            data: records,
+                            success: function (data) {
+                                alert("Exams have been send to applicant successfully!");
+                                $.ajax({
+                                    type: 'DELETE',
+                                    url: '/hr_home',
+                                    data: recordds,
+                                    success: function (data) {
+                                    }
+                                });
+                                top.location.href = "hr_notify";
+                            }
+                        });
+                    }
+                });
+            });
+            $(".rejectbtn").click(function (e) {
+                var trow = $(this).closest('li');
+                var id = trow.find('.pid').html();
+                var email = trow.find('.email').html();
+                var cv = trow.find('.cv').html();
+                var record = { email: email, cv: cv, id: id };
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/hr_home',
+                    data: record,
+                    success: function (data) {
+                        /*var transporter = nodemailer.createTransport({
+                            service: 'gmail',
+                            auth: {
+                                user: 'ahmed.saleh.harby@gmail.com',
+                                pass: ''
+                            }
+                        });
+                        var mailOptions = {
+                            from: 'ahmed.saleh.harby@gmail.com',
+                            to: email,
+                            subject: 'Rejection mail',
+                            text: `We are sorry to inform you but you have been rejected, don't be sad, keep improving yourself and come back to apply.`
+                        };
+                        transporter.sendMail(mailOptions, function (error, info) {
+                            if (error) {
+                                console.log(error);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                            }
+                        });*/
+                        alert("Rejected And an Email have been sent successfully!");
+                        Location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <%- include ('nav.ejs'); %>
+    <div id="applied">
+        <button id="signin">Go to Sign In page</button>
+        <button id="exampage">Go to Exam Features page</button>
+        <button id="questionpage">Go to Question And Answer Features page</button>
+        <button id="notify">Go to Notify page</button>
+        <h1>Applied Applicant Avaliable: </h1>
+        <form id="appliedform" name="appliedform">
+            <ul>
+                <% for(var i=0; i<record.length; i++){ %>
+                <li>
+                    <h2 style="display:none;" class="pid"><%= record[i].postionid %></h2>
+                    <label>Postion: </label><label class="name"><%= record[i].postionname %></label>
+                    <br><br><br>
+                    <label>Email: </label><label class="email"><%= record[i].email %></label>
+                    <br><br><br>
+                    <label>CV:</label><label class="cv"><%= record[i].cv %></label>
+                    <br><br>
+                    <button class="acceptbtn">Accept!</button>
+                    <button class="rejectbtn">Reject!</button>
+                    <br><br><br>
+                </li>
+                <% } %>
+            </ul>
+        </form>
+    </div>
+    <div id="exam" name="exam">
+        <h1>Choose Exam Type: </h1>
+        <form id="examform" name="examform">
+            <p id="valid">You need to choose the 3 exam types!</p>
+            <label><input type="radio" name="sequence" value="seq" checked> Sequence</label>
+            <label><input type="radio" name="sequence" value="noseq"> No Sequence</label>
+            <br><br><br><br>
+            <label>Exam 1 type: </label>
+            <input list="type1" id="typeval1" placeholder="Choose Exam Type">
+            <datalist id="type1" name="type1">
+                <% for(var i=0; i<exam.length; i++){ %>
+                <h2 style="display:none;" class="eid1"><%= exam[i].examid %></h2>
+                <option> <%= exam[i].examtype %> </option>
+                <% } %>
+            </datalist>
+            <br><label>Exam 1 Deadline: </label>
+            <input type="date" id="date1" name="date1">
+            <br><br>
+            <label>Exam 2 type: </label>
+            <input list="type2" id="typeval2" placeholder="Choose Exam Type">
+            <datalist id="type2" name="type2">
+                <% for(var i=0; i<exam.length; i++){ %>
+                <h2 style="display:none;" class="eid2"><%= exam[i].examid %></h2>
+                <option><%= exam[i].examtype %></option>
+                <% } %>
+            </datalist>
+            <br><label>Exam 2 Deadline: </label>
+            <input type="date" id="date2" name="date2">
+            <br><br>
+            <label>Exam 3 type: </label>
+            <input list="type3" id="typeval3" placeholder="Choose Exam Type">
+            <datalist id="type3" name="type3">
+                <% for(var i=0; i<exam.length; i++){ %>
+                <h2 style="display:none;" class="eid3"><%= exam[i].examid %></h2>
+                <option><%= exam[i].examtype %></option>
+                <% } %>
+            </datalist>
+            <br><label>Exam 3 Deadline: </label>
+            <input type="date" id="date3" name="date3">
+            <br><br>
+            <button id="exambtn">Submit!</button>
+        </form>
+    </div>
+</body>
+
+</html>
