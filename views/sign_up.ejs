@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function validate() {
+            if (document.sign.fname.value == "" || document.sign.fname.value.length >= 50) {
+                document.getElementById("pfname").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#pfname").show();
+                return false;
+            } else {
+                $("#pfname").hide();
+            }
+            if (document.sign.lname.value == "" || document.sign.lname.value.length >= 50) {
+                document.getElementById("plname").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#plname").show();
+                return false;
+            } else {
+                $("#plname").hide();
+            }
+            if (document.sign.email.value == "") {
+                $("#ptel").hide();
+            }else if (!document.sign.tel.value == "" && document.sign.tel.value.length > 0  && !document.sign.tel.value.match("^[0-9]+$")){
+                document.getElementById("ptel").innerHTML = "Your input Must be Numbers only try again please!";
+                $("#ptel").show();
+                return false;
+            }
+            if (document.sign.email.value == "" || document.sign.email.value.length >= 200 || !document.sign.email.value.match(".") || !document.sign.email.value.match("@")) {
+                document.getElementById("pemail").innerHTML = "Your input can't be Null or more than 100 letter and must include '@' and '.' !";
+                $("#pemail").show();
+                return false;
+            } else {
+                $("#pemail").hide();
+            }
+            if (document.sign.pass.value == "" || document.sign.pass.value.length >= 50) {
+                document.getElementById("ppass").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#ppass").show();
+                return false;
+            } else {
+                $("#ppass").hide();
+            }
+            return (true);
+        }
+        function ShowWarning(data) {
+            if (data.email == $('#email').val()) {
+                document.getElementById("pemail").innerHTML = "Unfortunately,The email you entered is taken!";
+                $("#pemail").show();
+                return false;
+            } else {
+                $("#pemail").hide();
+                return true;
+            }
+        }
+        $(document).ready(function () {
+            $("#signin").click(function (e) {
+                top.location.href = "sign_in";
+            });
+            var isValid1 = false;
+            var isValid2 = false;
+            $("#pfname").hide();
+            $("#plname").hide();
+            $("#ptel").hide();
+            $("#pemail").hide();
+            $("#ppass").hide();
+            $("#ptel").hide();
+            $('#email').blur(function () {
+                var check = { email: $('#email').val(), taken: 1 };
+                $.ajax({
+                    type: 'POST',
+                    url: '/sign_up',
+                    data: check,
+                    success: function (data) {
+                        isValid1 = ShowWarning(data);
+                    }
+                })
+            });
+            $("#sign").submit(function (e) {
+                if (!isValid1) {
+                    e.preventDefault();
+                    $("#pemail").show();
+                } else {
+                    isValid2 = validate();
+                    if (isValid2) {
+                        var fname = $('#fname');
+                        var lname = $('#lname');
+                        var tel = $('#tel');
+                        var email = $('#email');
+                        var pass = $('#pass');
+                        var acc = {
+                            fname: fname.val(), lname: lname.val(), tel: tel.val(),
+                            email: email.val(), pass: pass.val(), taken: 2
+                        };
+                        $.ajax({
+                            type: 'POST',
+                            url: '/sign_up',
+                            data: acc,
+                            success: function (data) {
+                                top.location.href = "profile";
+                            }
+                        });
+                        alert("Signed Up Successfully!");
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Sign Up form</h1>
+    <form name="sign" id="sign" onsubmit="return(validate());">
+        <label>First Name: </label>
+        <input type="text" name="fname" id="fname" placeholder="Your First Name.." />
+        <p id="pfname"></p>
+        <br>
+        <label>Last Name: </label>
+        <input type="text" name="lname" id="lname" placeholder="Your Last Name.." />
+        <p id="plname"></p>
+        <br>
+        <label>Telephone Number: </label>
+        <input type="tel" name="tel" id="tel" placeholder="Your Telephone Number.." />
+        <p id="ptel"></p>
+        <br>
+        <label>Email: </label>
+        <input type="email" name="email" id="email" placeholder="Your Email.." />
+        <p id="pemail"></p>
+        <br>
+        <label>Password: </label>
+        <input type="password" name="pass" id="pass" placeholder="Your Password.." />
+        <p id="ppass"></p>
+        <br>
+        <button type="submit" id="submit">Sign Up!</button>
+        <br><br>
+        <button type="button" id="signin">Sign In?</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Applicant Exam Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var record = { email: '<%=sess.email%>', examid: '<%= sess.examid%>' };
+            $('#exam input[name=answer0]').on('change', function () {
+                record.aid = $(this).val();
+                record.qid = $(this).closest('li').find('.qid').html();
+                record.question = $(this).closest('li').find('.question').html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/applicant_exam',
+                    data: record,
+                    success: function (data) {
+                        alert("Updated successfully!");
+                    }
+                });
+            });
+            $('#exam input[name=answer1]').on('change', function () {
+                record.aid = $(this).val();
+                record.qid = $(this).closest('li').find('.qid').html();
+                record.question = $(this).closest('li').find('.question').html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/applicant_exam',
+                    data: record,
+                    success: function (data) {
+                        alert("Updated successfully!");
+                    }
+                });
+            });
+            $('#exam input[name=answer2]').on('change', function () {
+                record.aid = $(this).val();
+                record.qid = $(this).closest('li').find('.qid').html();
+                record.question = $(this).closest('li').find('.question').html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/applicant_exam',
+                    data: record,
+                    success: function (data) {
+                        alert("Updated successfully!");
+                    }
+                });
+            });
+            $('#exam input[name=answer3]').on('change', function () {
+                record.aid = $(this).val();
+                record.qid = $(this).closest('li').find('.qid').html();
+                record.question = $(this).closest('li').find('.question').html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/applicant_exam',
+                    data: record,
+                    success: function (data) {
+                        alert("Updated successfully!");
+                    }
+                });
+            });
+            $('#exam input[name=answer4]').on('change', function () {
+                record.aid = $(this).val();
+                record.qid = $(this).closest('li').find('.qid').html();
+                record.question = $(this).closest('li').find('.question').html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/applicant_exam',
+                    data: record,
+                    success: function (data) {
+                        alert("Updated successfully!");
+                    }
+                });
+            });
+            $("#submit").click(function (e) {
+                top.location.href = "applicant_notify";
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <%- include ('nav.ejs'); %>
+    <h1>Applicant Exams: </h1>
+    <form id="exam" name="exam">
+        <ul>
+            <%
+            function onlyUnique(value, index, self) {
+                return self.indexOf(value) === index;
+            }
+            for(var i=0; i<questions_rec.length; i++){ %>
+            <li>
+                <h2 style="display:none;" class="question"><%=questions_rec[i].question%></h2>
+                <label> Question<%=i+1%>: <%=questions_rec[i].question%></label>
+                <%  var r;
+            var new_answer=[];
+            var answer1_c=[];
+            var answer1_uc=[];
+            var arr=[];
+            var index=[];
+            for(var j=0; j<answers_rec.length; j++){ 
+                if(answers_rec[j].qid==questions_rec[i].qid){
+                    arr.push(answers_rec[j]);
+                }
+            }
+            for(var j=0; j<arr.length; j++){ 
+                if(arr[j].correct=='yes'){
+                    answer1_c.push(arr[j]);
+                }else{
+                    answer1_uc.push(arr[j]);
+                }
+            }
+            while (new_answer.length != 3) {
+                r = Math.floor(Math.random() * answer1_uc.length-1) + 1;
+                new_answer.push(r);
+                new_answer = new_answer.filter(onlyUnique);
+            }
+            arr = [];
+            for(var j=0; j<new_answer.length; j++){ 
+                arr.push(answer1_uc[new_answer[j]]);
+            }
+            r = Math.floor(Math.random() * answer1_c.length-1) + 1;
+            arr.push(answer1_c[r]);
+            while (index.length != 4) {
+                r = Math.floor(Math.random() * arr.length-1) + 1;
+                index.push(r);
+                index = index.filter(onlyUnique);
+            }
+            for(var j=0; j<index.length; j++){
+        %>
+                <h2 style="display:none;" class="qid"><%= arr[index[j]].qid %></h2>
+                <h2 style="display:none;" class="correct"><%= arr[index[j]].correct %></h2>
+                <label><input type="radio" name=<%=('answer'+i)%>
+                        value=<%=arr[index[j]].aid%>><%=arr[index[j]].answer%></label>
+                <% } %>
+                <br><br><br><br><br><br><br><br>
+                <% } %>
+            </li>
+        </ul>
+        <br><br>
+        <p style="display:none;" id="error">You have to answer all the question!</p>
+        <button type="button" id="submit">Submit!</button>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Applicant Notify Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#home").click(function () {
+                top.location.href = "applicant_home";
+            });
+            $('.error').hide();
+            function enablestart(pid, order) {
+                '<%for (var i = 0; i < exams.length; i++) {%>'
+                if (pid == '<%=exams[i].postionid%>' && order > '<%=exams[i].number %>') {
+                    return false;
+                }
+                '<%}%>'
+                return true;
+            }
+            $(".startbtn").click(function (e) {
+                var row = $(this).closest('li');
+                var pid = row.find('.pid').text();
+                var eid = row.find('.eid').text();
+                var order = row.find('.pnumber').text();
+                var deadline = row.find('.deadline').text();
+                var error = row.find('.error');
+                var record = { pid: pid, eid: eid, order: order, deadline: deadline };
+                if (enablestart(pid, order)) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '/applicant_notify',
+                        data: record,
+                        success: function (data) {
+                            top.location.href = "applicant_exam";
+                        }
+                    });
+                } else {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    error.show();
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <%- include ('nav.ejs'); %>
+    <button id="home">Go to Home Page</button>
+    <h1>Exams Avaliable: </h1>
+    <form id="exams" name="exams">
+        <ul>
+            <% for(var i=0; i<exams.length; i++){
+                if(exams[i].deadline==null||exams[i].deadline>=new Date(Date.now() + (24 * 3600 * 1000))){%>
+            <li>
+                <h2 style="display:none;" class="pid"><%=exams[i].postionid%></h2>
+                <label>Exam Order: </label><label class="pnumber"><%= exams[i].number %></label>
+                <br><br><br>
+                <label>Job Title: </label><label class="pname"><%= exams[i].postionname %></label>
+                <br><br><br>
+                <h3 style="display:none;" class="eid"><%=exams[i].examid%></h3>
+                <label>Exam Type:</label><label class="ptype"><%= exams[i].examtype %></label>
+                <br><br><br>
+                <label>Exam Deadline: </label><label
+                    class="deadline"><%= ((exams[i].deadline==null)?'No Deadline':exams[i].deadline) %></label>
+                <br><br><br>
+                <p class="error">You have to start exams in correct order!</p>
+                <button class="startbtn">Start Exam!</button>
+                <br><br><br>
+            </li>
+            <% }} %>
+        </ul>
+    </form>
+    <h1>Exam Scores: </h1>
+    <ul>
+        <%  if(candidates.length!=0){
+                var examid = candidates[0].examid;
+                var count =0;  
+                var examtype ; 
+                for(var j=0; j<candidates.length; j++){
+                    if(examid==exam[j].examid){
+                       examtype=exam[j].examtype;
+                }}%>
+        <li><label>Exam Type: </label><label><%= examtype %></label><br><br><br>
+            <% for(var i=0; i<candidates.length; i++){
+                if( examid == candidates[i].examid){%>
+            <label>Question: </label><label><%= candidates[i].question %></label><br><br><br>
+            <label>Answer: </label><label><%= candidates[i].answer %></label><br><br><br>
+            <label>Correct: </label><label><%= candidates[i].correct %></label><br><br><br>
+            <%if(candidates[i].correct=='yes'){
+                        count++;
+                    }
+                }else if(examid != candidates[i].examid){
+                    examid=candidates[i].examid;%>
+            <label>Grade: </label><label><%= count %>/5</label><br><br><br></li>
+        <%  if(i<candidates.length){
+                count=0;}
+            for(var j=0; j<candidates.length; j++){
+                if(examid==exam[j].examid){
+                    examtype=exam[j].examtype;
+            }}%>
+        <li><label>Exam Type: </label><label><%= examtype %></label><br><br><br>
+        <%}}%>
+        <label>Grade: </label><label><%= count %>/5</label><br><br><br></li>
+        <%}%>
+    </ul>
+</body>
+
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sign In Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/stylecss.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function validate() {
+            if (document.signin.email.value == "" || document.signin.email.value.length >= 100) {
+                document.getElementById("pemail").innerHTML = "Your input can't be Null or more than 100 letter!";
+                $("#pemail").show();
+                return false;
+            } else {
+                $("#pemail").hide();
+            }
+            if (document.signin.pass.value == "" || document.signin.pass.value.length >= 50) {
+                document.getElementById("ppass").innerHTML = "Your input can't be Null or more than 50 letter!";
+                $("#ppass").show();
+                return false;
+            } else {
+                $("#ppass").hide();
+            }
+            return true;
+        }
+        $(document).ready(function () {
+            $("#signup").click(function (e) {
+                top.location.href = "sign_up";
+            });
+            $("#pemail").hide();
+            $("#ppass").hide();
+            $("#pform").hide();
+            $("#submit").click(function (e) {
+                var radios = document.forms.signin.ha.value;
+                var valid = false;
+                valid = validate();
+                if (valid) {
+                    if(radios=='hr'){
+                        var email = $('#email');
+                        var pass = $('#pass');
+                        var acc = {
+                            email: email.val(), pass: pass.val(), ha:'1'
+                        };
+                        $.ajax({
+                            type: 'POST',
+                            url: '/sign_in',
+                            data: acc,
+                            success: function (data) {
+                                if (data.length == 0) {
+                                    document.getElementById("pform").innerHTML = "Email Or PassWord isn't Correct!";
+                                    $("#pform").show();
+                                } else {
+                                    top.location.href = "hr_home";
+                                }
+                            }
+                        });
+                    }else{
+                        var email = $('#email');
+                        var pass = $('#pass');
+                        var acc = {
+                            email: email.val(), pass: pass.val(), ha: 0
+                        };
+                        $.ajax({
+                            type: 'POST',
+                            url: '/sign_in',
+                            data: acc,
+                            success: function (data) {
+                                if (data.length == 0) {
+                                    document.getElementById("pform").innerHTML = "Email Or PassWord isn't Correct!";
+                                    $("#pform").show();
+                                } else {
+                                    top.location.href = "applicant_home";
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <h1>Sign In form</h1>
+    <form id="signin" name="signin" >
+        <label>Email: </label>
+        <input type="email" id="email" name="email" placeholder="Your Email.." />
+        <p id="pemail"></p>
+        <br>
+        <label>Password: </label>
+        <input type="password" id="pass" name="pass" placeholder="Your Password.." />
+        <p id="ppass"></p>
+        <br><br>
+        <label><input type="radio" name="ha" value="hr" checked> HR</label>
+        <label><input type="radio" name="ha" value="applicant"> Applicant</label>
+        <br><br><br><br>
+        <button type="button" id="submit">Sign In!</button>
+        <p id="pform"></p>
+        <br><br>
+        <button type="button" id="signup">Sign Up?</button>
+    </form>
+</body>
+
+</html>
