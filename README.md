@@ -47,5 +47,5 @@ Open this link --> http://localhost:3000/
 
 ##### ERD
 
-[Digram](erd.png)
+![alt text](https://github.com/Ahmed-Saleh1/Online-Testing-NodeJS/blob/master/erd.png)
 
